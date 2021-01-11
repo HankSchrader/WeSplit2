@@ -15,12 +15,12 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var checkAmount = ""
-    @State private var numberOfpeople = 2
+    @State private var numberOfpeople = "2"
     @State private var tipPercentage = 2
     let tipPercentages = [10, 15, 20, 25, 0]
     
-    var totalPerPerson: Double {
-        let peopleCount = Double(numberOfpeople + 2)
+    var total: (perPerson: Double, grandTotal: Double) {
+        let peopleCount = Double(Int(numberOfpeople) ?? 0 + 2)
         let tipSelection = Double(tipPercentages[tipPercentage])
         let orderAmount = Double(checkAmount) ?? 0
 
@@ -28,7 +28,7 @@ struct ContentView: View {
         let grandTotal = orderAmount + tipValue
         let amountPerPerson = grandTotal / peopleCount
 
-        return amountPerPerson
+        return (amountPerPerson, grandTotal)
     }
     var body: some View {
         NavigationView {
@@ -36,14 +36,9 @@ struct ContentView: View {
                 Section{
                     TextField("Amount", text: $checkAmount)
                         .keyboardType(.decimalPad)
-                    Picker("Number of People", selection: $numberOfpeople) {
-                        ForEach(2..<100) {
-                            Text("\($0) people")
-                        }
-                    }
+                    TextField("Number of People", text: $numberOfpeople).keyboardType(.numberPad)
                     
                 }
-                
                 Section(header: Text("How much of a tip do you want to leave?").textCase(.none)) {
                     Picker("Tip Percentage", selection: $tipPercentage) {
                         ForEach(0..<tipPercentages.count) {
@@ -53,8 +48,12 @@ struct ContentView: View {
                     .pickerStyle(SegmentedPickerStyle())
                 }
                 
-                Section {
-                    Text("\(totalPerPerson, specifier: "%.2f")")
+                Section(header: Text("Grand Total").textCase(.none))  {
+                    Text("\(total.grandTotal, specifier: "%.2f")")
+                }
+                
+                Section(header: Text("Amount owed by each individual").textCase(.none)) {
+                    Text("\(total.perPerson, specifier: "%.2f")")
                 }
             }.navigationBarTitle("We Split")
         }
